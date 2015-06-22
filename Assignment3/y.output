@@ -1,0 +1,896 @@
+   0  $accept : program $end
+
+   1  program :
+   2          | extdefs
+
+   3  extdefs : extdef
+   4          | extdefs extdef
+
+   5  extdef : TYPESPEC notype_declarator ';'
+
+   6  $$1 :
+
+   7  $$2 :
+
+   8  $$3 :
+
+   9  extdef : TYPESPEC notype_declarator $$1 '{' xdecls $$2 stmts $$3 '}'
+
+  10  expr_no_commas : primary
+  11                 | '(' expr_no_commas ')'
+
+  12  $$4 :
+
+  13  expr_no_commas : expr_no_commas $$4 '*' expr_no_commas
+
+  14  $$5 :
+
+  15  expr_no_commas : expr_no_commas $$5 '/' expr_no_commas
+
+  16  $$6 :
+
+  17  expr_no_commas : expr_no_commas $$6 '+' expr_no_commas
+
+  18  $$7 :
+
+  19  expr_no_commas : expr_no_commas $$7 '-' expr_no_commas
+  20                 | IDENTIFIER '=' expr_no_commas
+
+  21  primary : IDENTIFIER
+  22          | CONSTANT
+  23          | IDENTIFIER '(' param_list ')'
+
+  24  param_list :
+  25             | expr_no_commas
+  26             | param_list ',' expr_no_commas
+
+  27  notype_declarator : notype_declarator '(' parmlist ')'
+  28                    | IDENTIFIER
+
+  29  parmlist :
+  30           | parmlist ',' parm
+  31           | parm
+
+  32  parm : TYPESPEC notype_declarator
+
+  33  stmts : stmt
+  34        | stmts stmt
+
+  35  stmt : expr_no_commas ';'
+  36       | RETURN expr_no_commas ';'
+
+  37  xdecls :
+  38         | decls
+
+  39  decls : declists
+  40        | decls declists
+
+  41  declists : TYPESPEC declist ';'
+
+  42  declist : decl
+  43          | decl ',' declist
+
+  44  decl : notype_declarator
+  45       | notype_declarator '=' expr_no_commas
+
+state 0
+	$accept : . program $end  (0)
+	program : .  (1)
+
+	TYPESPEC  shift 1
+	$end  reduce 1
+
+	program  goto 2
+	extdefs  goto 3
+	extdef  goto 4
+
+
+state 1
+	extdef : TYPESPEC . notype_declarator ';'  (5)
+	extdef : TYPESPEC . notype_declarator $$1 '{' xdecls $$2 stmts $$3 '}'  (9)
+
+	IDENTIFIER  shift 5
+	.  error
+
+	notype_declarator  goto 6
+
+
+state 2
+	$accept : program . $end  (0)
+
+	$end  accept
+
+
+state 3
+	program : extdefs .  (2)
+	extdefs : extdefs . extdef  (4)
+
+	TYPESPEC  shift 1
+	$end  reduce 2
+
+	extdef  goto 7
+
+
+state 4
+	extdefs : extdef .  (3)
+
+	.  reduce 3
+
+
+state 5
+	notype_declarator : IDENTIFIER .  (28)
+
+	.  reduce 28
+
+
+state 6
+	extdef : TYPESPEC notype_declarator . ';'  (5)
+	extdef : TYPESPEC notype_declarator . $$1 '{' xdecls $$2 stmts $$3 '}'  (9)
+	notype_declarator : notype_declarator . '(' parmlist ')'  (27)
+	$$1 : .  (6)
+
+	';'  shift 8
+	'('  shift 9
+	'{'  reduce 6
+
+	$$1  goto 10
+
+
+state 7
+	extdefs : extdefs extdef .  (4)
+
+	.  reduce 4
+
+
+state 8
+	extdef : TYPESPEC notype_declarator ';' .  (5)
+
+	.  reduce 5
+
+
+state 9
+	notype_declarator : notype_declarator '(' . parmlist ')'  (27)
+	parmlist : .  (29)
+
+	TYPESPEC  shift 11
+	','  reduce 29
+	')'  reduce 29
+
+	parmlist  goto 12
+	parm  goto 13
+
+
+state 10
+	extdef : TYPESPEC notype_declarator $$1 . '{' xdecls $$2 stmts $$3 '}'  (9)
+
+	'{'  shift 14
+	.  error
+
+
+state 11
+	parm : TYPESPEC . notype_declarator  (32)
+
+	IDENTIFIER  shift 5
+	.  error
+
+	notype_declarator  goto 15
+
+
+state 12
+	notype_declarator : notype_declarator '(' parmlist . ')'  (27)
+	parmlist : parmlist . ',' parm  (30)
+
+	','  shift 16
+	')'  shift 17
+	.  error
+
+
+state 13
+	parmlist : parm .  (31)
+
+	.  reduce 31
+
+
+state 14
+	extdef : TYPESPEC notype_declarator $$1 '{' . xdecls $$2 stmts $$3 '}'  (9)
+	xdecls : .  (37)
+
+	TYPESPEC  shift 18
+	IDENTIFIER  reduce 37
+	CONSTANT  reduce 37
+	RETURN  reduce 37
+	'('  reduce 37
+
+	xdecls  goto 19
+	decls  goto 20
+	declists  goto 21
+
+
+state 15
+	notype_declarator : notype_declarator . '(' parmlist ')'  (27)
+	parm : TYPESPEC notype_declarator .  (32)
+
+	'('  shift 9
+	','  reduce 32
+	')'  reduce 32
+
+
+state 16
+	parmlist : parmlist ',' . parm  (30)
+
+	TYPESPEC  shift 11
+	.  error
+
+	parm  goto 22
+
+
+state 17
+	notype_declarator : notype_declarator '(' parmlist ')' .  (27)
+
+	.  reduce 27
+
+
+state 18
+	declists : TYPESPEC . declist ';'  (41)
+
+	IDENTIFIER  shift 5
+	.  error
+
+	notype_declarator  goto 23
+	declist  goto 24
+	decl  goto 25
+
+
+state 19
+	extdef : TYPESPEC notype_declarator $$1 '{' xdecls . $$2 stmts $$3 '}'  (9)
+	$$2 : .  (7)
+
+	.  reduce 7
+
+	$$2  goto 26
+
+
+state 20
+	xdecls : decls .  (38)
+	decls : decls . declists  (40)
+
+	TYPESPEC  shift 18
+	IDENTIFIER  reduce 38
+	CONSTANT  reduce 38
+	RETURN  reduce 38
+	'('  reduce 38
+
+	declists  goto 27
+
+
+state 21
+	decls : declists .  (39)
+
+	.  reduce 39
+
+
+state 22
+	parmlist : parmlist ',' parm .  (30)
+
+	.  reduce 30
+
+
+state 23
+	notype_declarator : notype_declarator . '(' parmlist ')'  (27)
+	decl : notype_declarator .  (44)
+	decl : notype_declarator . '=' expr_no_commas  (45)
+
+	'='  shift 28
+	'('  shift 9
+	';'  reduce 44
+	','  reduce 44
+
+
+state 24
+	declists : TYPESPEC declist . ';'  (41)
+
+	';'  shift 29
+	.  error
+
+
+state 25
+	declist : decl .  (42)
+	declist : decl . ',' declist  (43)
+
+	','  shift 30
+	';'  reduce 42
+
+
+state 26
+	extdef : TYPESPEC notype_declarator $$1 '{' xdecls $$2 . stmts $$3 '}'  (9)
+
+	IDENTIFIER  shift 31
+	CONSTANT  shift 32
+	RETURN  shift 33
+	'('  shift 34
+	.  error
+
+	primary  goto 35
+	expr_no_commas  goto 36
+	stmts  goto 37
+	stmt  goto 38
+
+
+state 27
+	decls : decls declists .  (40)
+
+	.  reduce 40
+
+
+state 28
+	decl : notype_declarator '=' . expr_no_commas  (45)
+
+	IDENTIFIER  shift 31
+	CONSTANT  shift 32
+	'('  shift 34
+	.  error
+
+	primary  goto 35
+	expr_no_commas  goto 39
+
+
+state 29
+	declists : TYPESPEC declist ';' .  (41)
+
+	.  reduce 41
+
+
+state 30
+	declist : decl ',' . declist  (43)
+
+	IDENTIFIER  shift 5
+	.  error
+
+	notype_declarator  goto 23
+	declist  goto 40
+	decl  goto 25
+
+
+state 31
+	expr_no_commas : IDENTIFIER . '=' expr_no_commas  (20)
+	primary : IDENTIFIER .  (21)
+	primary : IDENTIFIER . '(' param_list ')'  (23)
+
+	'='  shift 41
+	'('  shift 42
+	';'  reduce 21
+	','  reduce 21
+	'+'  reduce 21
+	'-'  reduce 21
+	'*'  reduce 21
+	'/'  reduce 21
+	')'  reduce 21
+
+
+state 32
+	primary : CONSTANT .  (22)
+
+	.  reduce 22
+
+
+state 33
+	stmt : RETURN . expr_no_commas ';'  (36)
+
+	IDENTIFIER  shift 31
+	CONSTANT  shift 32
+	'('  shift 34
+	.  error
+
+	primary  goto 35
+	expr_no_commas  goto 43
+
+
+state 34
+	expr_no_commas : '(' . expr_no_commas ')'  (11)
+
+	IDENTIFIER  shift 31
+	CONSTANT  shift 32
+	'('  shift 34
+	.  error
+
+	primary  goto 35
+	expr_no_commas  goto 44
+
+
+state 35
+	expr_no_commas : primary .  (10)
+
+	.  reduce 10
+
+
+state 36
+	expr_no_commas : expr_no_commas . $$4 '*' expr_no_commas  (13)
+	expr_no_commas : expr_no_commas . $$5 '/' expr_no_commas  (15)
+	expr_no_commas : expr_no_commas . $$6 '+' expr_no_commas  (17)
+	expr_no_commas : expr_no_commas . $$7 '-' expr_no_commas  (19)
+	stmt : expr_no_commas . ';'  (35)
+	$$4 : .  (12)
+	$$5 : .  (14)
+	$$6 : .  (16)
+	$$7 : .  (18)
+
+	';'  shift 45
+	'+'  reduce 16
+	'-'  reduce 18
+	'*'  reduce 12
+	'/'  reduce 14
+
+	$$4  goto 46
+	$$5  goto 47
+	$$6  goto 48
+	$$7  goto 49
+
+
+state 37
+	extdef : TYPESPEC notype_declarator $$1 '{' xdecls $$2 stmts . $$3 '}'  (9)
+	stmts : stmts . stmt  (34)
+	$$3 : .  (8)
+
+	IDENTIFIER  shift 31
+	CONSTANT  shift 32
+	RETURN  shift 33
+	'('  shift 34
+	'}'  reduce 8
+
+	primary  goto 35
+	expr_no_commas  goto 36
+	$$3  goto 50
+	stmt  goto 51
+
+
+state 38
+	stmts : stmt .  (33)
+
+	.  reduce 33
+
+
+state 39
+	expr_no_commas : expr_no_commas . $$4 '*' expr_no_commas  (13)
+	expr_no_commas : expr_no_commas . $$5 '/' expr_no_commas  (15)
+	expr_no_commas : expr_no_commas . $$6 '+' expr_no_commas  (17)
+	expr_no_commas : expr_no_commas . $$7 '-' expr_no_commas  (19)
+	decl : notype_declarator '=' expr_no_commas .  (45)
+	$$4 : .  (12)
+	$$5 : .  (14)
+	$$6 : .  (16)
+	$$7 : .  (18)
+
+	';'  reduce 45
+	','  reduce 45
+	'+'  reduce 16
+	'-'  reduce 18
+	'*'  reduce 12
+	'/'  reduce 14
+
+	$$4  goto 46
+	$$5  goto 47
+	$$6  goto 48
+	$$7  goto 49
+
+
+state 40
+	declist : decl ',' declist .  (43)
+
+	.  reduce 43
+
+
+state 41
+	expr_no_commas : IDENTIFIER '=' . expr_no_commas  (20)
+
+	IDENTIFIER  shift 31
+	CONSTANT  shift 32
+	'('  shift 34
+	.  error
+
+	primary  goto 35
+	expr_no_commas  goto 52
+
+
+state 42
+	primary : IDENTIFIER '(' . param_list ')'  (23)
+	param_list : .  (24)
+
+	IDENTIFIER  shift 31
+	CONSTANT  shift 32
+	'('  shift 34
+	','  reduce 24
+	')'  reduce 24
+
+	primary  goto 35
+	expr_no_commas  goto 53
+	param_list  goto 54
+
+
+state 43
+	expr_no_commas : expr_no_commas . $$4 '*' expr_no_commas  (13)
+	expr_no_commas : expr_no_commas . $$5 '/' expr_no_commas  (15)
+	expr_no_commas : expr_no_commas . $$6 '+' expr_no_commas  (17)
+	expr_no_commas : expr_no_commas . $$7 '-' expr_no_commas  (19)
+	stmt : RETURN expr_no_commas . ';'  (36)
+	$$4 : .  (12)
+	$$5 : .  (14)
+	$$6 : .  (16)
+	$$7 : .  (18)
+
+	';'  shift 55
+	'+'  reduce 16
+	'-'  reduce 18
+	'*'  reduce 12
+	'/'  reduce 14
+
+	$$4  goto 46
+	$$5  goto 47
+	$$6  goto 48
+	$$7  goto 49
+
+
+state 44
+	expr_no_commas : '(' expr_no_commas . ')'  (11)
+	expr_no_commas : expr_no_commas . $$4 '*' expr_no_commas  (13)
+	expr_no_commas : expr_no_commas . $$5 '/' expr_no_commas  (15)
+	expr_no_commas : expr_no_commas . $$6 '+' expr_no_commas  (17)
+	expr_no_commas : expr_no_commas . $$7 '-' expr_no_commas  (19)
+	$$4 : .  (12)
+	$$5 : .  (14)
+	$$6 : .  (16)
+	$$7 : .  (18)
+
+	')'  shift 56
+	'+'  reduce 16
+	'-'  reduce 18
+	'*'  reduce 12
+	'/'  reduce 14
+
+	$$4  goto 46
+	$$5  goto 47
+	$$6  goto 48
+	$$7  goto 49
+
+
+state 45
+	stmt : expr_no_commas ';' .  (35)
+
+	.  reduce 35
+
+
+state 46
+	expr_no_commas : expr_no_commas $$4 . '*' expr_no_commas  (13)
+
+	'*'  shift 57
+	.  error
+
+
+state 47
+	expr_no_commas : expr_no_commas $$5 . '/' expr_no_commas  (15)
+
+	'/'  shift 58
+	.  error
+
+
+state 48
+	expr_no_commas : expr_no_commas $$6 . '+' expr_no_commas  (17)
+
+	'+'  shift 59
+	.  error
+
+
+state 49
+	expr_no_commas : expr_no_commas $$7 . '-' expr_no_commas  (19)
+
+	'-'  shift 60
+	.  error
+
+
+state 50
+	extdef : TYPESPEC notype_declarator $$1 '{' xdecls $$2 stmts $$3 . '}'  (9)
+
+	'}'  shift 61
+	.  error
+
+
+state 51
+	stmts : stmts stmt .  (34)
+
+	.  reduce 34
+
+
+52: reduce/reduce conflict (reduce 16, reduce 20) on '+'
+52: reduce/reduce conflict (reduce 18, reduce 20) on '-'
+52: reduce/reduce conflict (reduce 12, reduce 20) on '*'
+52: reduce/reduce conflict (reduce 14, reduce 20) on '/'
+state 52
+	expr_no_commas : expr_no_commas . $$4 '*' expr_no_commas  (13)
+	expr_no_commas : expr_no_commas . $$5 '/' expr_no_commas  (15)
+	expr_no_commas : expr_no_commas . $$6 '+' expr_no_commas  (17)
+	expr_no_commas : expr_no_commas . $$7 '-' expr_no_commas  (19)
+	expr_no_commas : IDENTIFIER '=' expr_no_commas .  (20)
+	$$4 : .  (12)
+	$$5 : .  (14)
+	$$6 : .  (16)
+	$$7 : .  (18)
+
+	';'  reduce 20
+	','  reduce 20
+	'+'  reduce 16
+	'-'  reduce 18
+	'*'  reduce 12
+	'/'  reduce 14
+	')'  reduce 20
+
+	$$4  goto 46
+	$$5  goto 47
+	$$6  goto 48
+	$$7  goto 49
+
+
+state 53
+	expr_no_commas : expr_no_commas . $$4 '*' expr_no_commas  (13)
+	expr_no_commas : expr_no_commas . $$5 '/' expr_no_commas  (15)
+	expr_no_commas : expr_no_commas . $$6 '+' expr_no_commas  (17)
+	expr_no_commas : expr_no_commas . $$7 '-' expr_no_commas  (19)
+	param_list : expr_no_commas .  (25)
+	$$4 : .  (12)
+	$$5 : .  (14)
+	$$6 : .  (16)
+	$$7 : .  (18)
+
+	','  reduce 25
+	'+'  reduce 16
+	'-'  reduce 18
+	'*'  reduce 12
+	'/'  reduce 14
+	')'  reduce 25
+
+	$$4  goto 46
+	$$5  goto 47
+	$$6  goto 48
+	$$7  goto 49
+
+
+state 54
+	primary : IDENTIFIER '(' param_list . ')'  (23)
+	param_list : param_list . ',' expr_no_commas  (26)
+
+	','  shift 62
+	')'  shift 63
+	.  error
+
+
+state 55
+	stmt : RETURN expr_no_commas ';' .  (36)
+
+	.  reduce 36
+
+
+state 56
+	expr_no_commas : '(' expr_no_commas ')' .  (11)
+
+	.  reduce 11
+
+
+state 57
+	expr_no_commas : expr_no_commas $$4 '*' . expr_no_commas  (13)
+
+	IDENTIFIER  shift 31
+	CONSTANT  shift 32
+	'('  shift 34
+	.  error
+
+	primary  goto 35
+	expr_no_commas  goto 64
+
+
+state 58
+	expr_no_commas : expr_no_commas $$5 '/' . expr_no_commas  (15)
+
+	IDENTIFIER  shift 31
+	CONSTANT  shift 32
+	'('  shift 34
+	.  error
+
+	primary  goto 35
+	expr_no_commas  goto 65
+
+
+state 59
+	expr_no_commas : expr_no_commas $$6 '+' . expr_no_commas  (17)
+
+	IDENTIFIER  shift 31
+	CONSTANT  shift 32
+	'('  shift 34
+	.  error
+
+	primary  goto 35
+	expr_no_commas  goto 66
+
+
+state 60
+	expr_no_commas : expr_no_commas $$7 '-' . expr_no_commas  (19)
+
+	IDENTIFIER  shift 31
+	CONSTANT  shift 32
+	'('  shift 34
+	.  error
+
+	primary  goto 35
+	expr_no_commas  goto 67
+
+
+state 61
+	extdef : TYPESPEC notype_declarator $$1 '{' xdecls $$2 stmts $$3 '}' .  (9)
+
+	.  reduce 9
+
+
+state 62
+	param_list : param_list ',' . expr_no_commas  (26)
+
+	IDENTIFIER  shift 31
+	CONSTANT  shift 32
+	'('  shift 34
+	.  error
+
+	primary  goto 35
+	expr_no_commas  goto 68
+
+
+state 63
+	primary : IDENTIFIER '(' param_list ')' .  (23)
+
+	.  reduce 23
+
+
+64: reduce/reduce conflict (reduce 13, reduce 16) on '+'
+64: reduce/reduce conflict (reduce 13, reduce 18) on '-'
+64: reduce/reduce conflict (reduce 12, reduce 13) on '*'
+64: reduce/reduce conflict (reduce 13, reduce 14) on '/'
+state 64
+	expr_no_commas : expr_no_commas . $$4 '*' expr_no_commas  (13)
+	expr_no_commas : expr_no_commas $$4 '*' expr_no_commas .  (13)
+	expr_no_commas : expr_no_commas . $$5 '/' expr_no_commas  (15)
+	expr_no_commas : expr_no_commas . $$6 '+' expr_no_commas  (17)
+	expr_no_commas : expr_no_commas . $$7 '-' expr_no_commas  (19)
+	$$4 : .  (12)
+	$$5 : .  (14)
+	$$6 : .  (16)
+	$$7 : .  (18)
+
+	';'  reduce 13
+	','  reduce 13
+	'+'  reduce 13
+	'-'  reduce 13
+	'*'  reduce 12
+	'/'  reduce 13
+	')'  reduce 13
+
+	$$4  goto 46
+	$$5  goto 47
+	$$6  goto 48
+	$$7  goto 49
+
+
+65: reduce/reduce conflict (reduce 15, reduce 16) on '+'
+65: reduce/reduce conflict (reduce 15, reduce 18) on '-'
+65: reduce/reduce conflict (reduce 12, reduce 15) on '*'
+65: reduce/reduce conflict (reduce 14, reduce 15) on '/'
+state 65
+	expr_no_commas : expr_no_commas . $$4 '*' expr_no_commas  (13)
+	expr_no_commas : expr_no_commas . $$5 '/' expr_no_commas  (15)
+	expr_no_commas : expr_no_commas $$5 '/' expr_no_commas .  (15)
+	expr_no_commas : expr_no_commas . $$6 '+' expr_no_commas  (17)
+	expr_no_commas : expr_no_commas . $$7 '-' expr_no_commas  (19)
+	$$4 : .  (12)
+	$$5 : .  (14)
+	$$6 : .  (16)
+	$$7 : .  (18)
+
+	';'  reduce 15
+	','  reduce 15
+	'+'  reduce 15
+	'-'  reduce 15
+	'*'  reduce 12
+	'/'  reduce 14
+	')'  reduce 15
+
+	$$4  goto 46
+	$$5  goto 47
+	$$6  goto 48
+	$$7  goto 49
+
+
+66: reduce/reduce conflict (reduce 16, reduce 17) on '+'
+66: reduce/reduce conflict (reduce 17, reduce 18) on '-'
+66: reduce/reduce conflict (reduce 12, reduce 17) on '*'
+66: reduce/reduce conflict (reduce 14, reduce 17) on '/'
+state 66
+	expr_no_commas : expr_no_commas . $$4 '*' expr_no_commas  (13)
+	expr_no_commas : expr_no_commas . $$5 '/' expr_no_commas  (15)
+	expr_no_commas : expr_no_commas . $$6 '+' expr_no_commas  (17)
+	expr_no_commas : expr_no_commas $$6 '+' expr_no_commas .  (17)
+	expr_no_commas : expr_no_commas . $$7 '-' expr_no_commas  (19)
+	$$4 : .  (12)
+	$$5 : .  (14)
+	$$6 : .  (16)
+	$$7 : .  (18)
+
+	';'  reduce 17
+	','  reduce 17
+	'+'  reduce 16
+	'-'  reduce 17
+	'*'  reduce 12
+	'/'  reduce 14
+	')'  reduce 17
+
+	$$4  goto 46
+	$$5  goto 47
+	$$6  goto 48
+	$$7  goto 49
+
+
+67: reduce/reduce conflict (reduce 16, reduce 19) on '+'
+67: reduce/reduce conflict (reduce 18, reduce 19) on '-'
+67: reduce/reduce conflict (reduce 12, reduce 19) on '*'
+67: reduce/reduce conflict (reduce 14, reduce 19) on '/'
+state 67
+	expr_no_commas : expr_no_commas . $$4 '*' expr_no_commas  (13)
+	expr_no_commas : expr_no_commas . $$5 '/' expr_no_commas  (15)
+	expr_no_commas : expr_no_commas . $$6 '+' expr_no_commas  (17)
+	expr_no_commas : expr_no_commas . $$7 '-' expr_no_commas  (19)
+	expr_no_commas : expr_no_commas $$7 '-' expr_no_commas .  (19)
+	$$4 : .  (12)
+	$$5 : .  (14)
+	$$6 : .  (16)
+	$$7 : .  (18)
+
+	';'  reduce 19
+	','  reduce 19
+	'+'  reduce 16
+	'-'  reduce 18
+	'*'  reduce 12
+	'/'  reduce 14
+	')'  reduce 19
+
+	$$4  goto 46
+	$$5  goto 47
+	$$6  goto 48
+	$$7  goto 49
+
+
+state 68
+	expr_no_commas : expr_no_commas . $$4 '*' expr_no_commas  (13)
+	expr_no_commas : expr_no_commas . $$5 '/' expr_no_commas  (15)
+	expr_no_commas : expr_no_commas . $$6 '+' expr_no_commas  (17)
+	expr_no_commas : expr_no_commas . $$7 '-' expr_no_commas  (19)
+	param_list : param_list ',' expr_no_commas .  (26)
+	$$4 : .  (12)
+	$$5 : .  (14)
+	$$6 : .  (16)
+	$$7 : .  (18)
+
+	','  reduce 26
+	'+'  reduce 16
+	'-'  reduce 18
+	'*'  reduce 12
+	'/'  reduce 14
+	')'  reduce 26
+
+	$$4  goto 46
+	$$5  goto 47
+	$$6  goto 48
+	$$7  goto 49
+
+
+State 52 contains 4 reduce/reduce conflicts.
+State 64 contains 4 reduce/reduce conflicts.
+State 65 contains 4 reduce/reduce conflicts.
+State 66 contains 4 reduce/reduce conflicts.
+State 67 contains 4 reduce/reduce conflicts.
+
+
+58 terminals, 24 nonterminals
+46 grammar rules, 69 states
